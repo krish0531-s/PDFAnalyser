@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+
+# Virtual Environment
+.venv/
+
+# Environment Variables
+.env
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+
+# Uploads
+uploads/
+
+# Testing
+.pytest_cache/
+
+# Coverage
+.coverage
+htmlcov/
+
+storage/uploads/
