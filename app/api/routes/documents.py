@@ -10,6 +10,15 @@ from app.repositories.document_repository import DocumentRepository
 from app.schemas.document import DocumentResponse
 from app.services.document_service import DocumentService
 from app.processors.pdf_processor import PDFProcessor
+from app.repositories.document_extraction_repository import (
+    DocumentExtractionRepository,
+)
+
+from app.services.document_extraction_service import (
+    DocumentExtractionService,
+)
+
+from app.services.ai.mock_provider import MockProvider
 
 router = APIRouter(prefix="/documents", tags=["documents"])
 
@@ -56,3 +65,24 @@ async def process_document(
     document = service.process_document(document_id)
 
     return document
+
+@router.post("/{document_id}/extract")
+async def extract_document(
+    document_id: int,
+    db: Session = Depends(get_db),
+):
+    document_repository = DocumentRepository(db)
+
+    extraction_repository = (
+        DocumentExtractionRepository(db)
+    )
+
+    provider = MockProvider()
+
+    service = DocumentExtractionService(
+        document_repository=document_repository,
+        extraction_repository=extraction_repository,
+        ai_provider=provider,
+    )
+
+    return service.extract_document(document_id)

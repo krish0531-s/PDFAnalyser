@@ -22,6 +22,7 @@ if config.config_file_name is not None:
 # target_metadata = None
 from app.core.database import Base
 from app.models.document import Document
+from app.models.document_extraction import DocumentExtraction
 
 target_metadata = Base.metadata
 

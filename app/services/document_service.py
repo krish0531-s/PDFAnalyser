@@ -1,21 +1,10 @@
-# from app.repositories.document_repository import DocumentRepository
-
-
-# class DocumentService:
-#     def __init__(self, repository: DocumentRepository):
-#         self.repository = repository
-
-#     def create_document(self, filename: str):
-#         return self.repository.create(
-#             filename=filename,
-#             status="uploaded",
-#         )
-
 from fastapi import UploadFile
 
 from app.processors.file_processor import FileProcessor
 from app.repositories.document_repository import DocumentRepository
 from app.processors.pdf_processor import PDFProcessor
+from app.models.document_status import DocumentStatus
+
 
 
 class DocumentService:
@@ -35,7 +24,7 @@ class DocumentService:
         return self.repository.create(
             filename=file.filename,
             stored_filename=stored_filename,
-            status="uploaded",
+            status=DocumentStatus.UPLOADED.value,
         )
     
     def process_document(self, document_id: int):
@@ -44,11 +33,25 @@ class DocumentService:
         if document is None:
             raise ValueError("Document not found")
 
-        extracted_text = self.pdf_processor.extract_text(
-            document.stored_filename
+        self.repository.update_status(
+            document=document,
+            status=DocumentStatus.EXTRACTING.value,
         )
 
-        return self.repository.update_extracted_text(
-            document=document,
-            extracted_text=extracted_text,
-        )
+        try:
+            extracted_text = self.pdf_processor.extract_text(
+                document.stored_filename
+            )
+
+            return self.repository.update_extracted_text(
+                document=document,
+                extracted_text=extracted_text,
+            )
+
+        except Exception:
+            self.repository.update_status(
+                document=document,
+                status=DocumentStatus.FAILED.value,
+            )
+
+            raise
