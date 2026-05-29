@@ -6,7 +6,7 @@ class Settings(BaseSettings):
 
     database_url: str = "sqlite:///./pdfanalyser.db"
 
-    gemini_api_key: str | None=None
+    gemini_api_key: str | None = None
 
     # upload_dir: str = "app/uploads"
     upload_dir: str = "storage/uploads"
@@ -15,6 +15,7 @@ class Settings(BaseSettings):
         env_file=".env",
         case_sensitive=False,
     )
+    gemini_model: str = "gemini-2.0-flash"
 
 
 settings = Settings()

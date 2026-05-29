@@ -3,14 +3,16 @@ from pydantic import BaseModel
 
 class ExtractedEntity(BaseModel):
     value: str
+    context: str
 
 
 class ExtractedDate(BaseModel):
-    value: str
+    date: str
+    description: str
 
 
 class ExtractedAction(BaseModel):
-    description: str
+    action: str
 
 
 class DocumentExtraction(BaseModel):

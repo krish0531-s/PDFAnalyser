@@ -17,6 +17,23 @@ from app.repositories.document_extraction_repository import (
 from app.services.document_extraction_service import (
     DocumentExtractionService,
 )
+from app.services.ai.gemini_provider import (
+        GeminiProvider,
+    )
+from app.services.prompt_service import (
+        PromptService,
+)
+
+
+import json
+
+from app.schemas.document_extraction import (
+    DocumentExtractionResponse,
+)
+
+from app.schemas.extraction import (
+    DocumentExtraction,
+)
 
 from app.services.ai.mock_provider import MockProvider
 
@@ -66,7 +83,7 @@ async def process_document(
 
     return document
 
-@router.post("/{document_id}/extract")
+@router.post("/{document_id}/extract",response_model=DocumentExtractionResponse)
 async def extract_document(
     document_id: int,
     db: Session = Depends(get_db),
@@ -77,7 +94,14 @@ async def extract_document(
         DocumentExtractionRepository(db)
     )
 
-    provider = MockProvider()
+    # provider = MockProvider()
+        
+
+    prompt_service = PromptService()
+
+    provider = GeminiProvider(
+        prompt_service=prompt_service,
+    )
 
     service = DocumentExtractionService(
         document_repository=document_repository,
@@ -85,4 +109,14 @@ async def extract_document(
         ai_provider=provider,
     )
 
-    return service.extract_document(document_id)
+    record=  service.extract_document(document_id)
+
+    return DocumentExtractionResponse(
+        id=record.id,
+        document_id=record.document_id,
+        provider=record.provider,
+        summary=record.summary,
+        extraction=DocumentExtraction.model_validate(
+            json.loads(record.extraction_json)
+        ),
+    )

@@ -40,6 +40,6 @@ class DocumentExtractionService:
 
         return self.extraction_repository.create(
             document_id=document.id,
-            provider="mock",
+            provider=self.ai_provider.provider_name,
             extraction=extraction,
         )
